@@ -1,40 +1,43 @@
-// export default namespace Broker
-export type BrokerAccountSummary = {
-    accountId: string,
-    totalCashValue: number
-} & { [x: string]: any };
+/**
+ * Security Type
+ */
+export enum SecType {
+  STOCK = "stock",
+  CRYPTO = "crypto",
+  // TODO to add forex, index, e.t.c
+}
 
 /**
- * SI
  * Symbol Info
  */
 export interface SymbolInfo {
-    symbol: string;
-    symbolType?: string;
+  symbol: string;
+  secType?: SecType;
 }
 
 export interface GetSymbolData extends SymbolInfo {
-    startDate?: Date;
-    endDate?: Date;
-    [x: string]: any;
+  startDate: Date;
+  endDate?: Date;
+
+  //TODO other fields if required from other market data providers
+  [x: string]: any;
 }
 
 export interface MosaicData extends SymbolInfo {
-    [x: string]: any;
+  [x: string]: any;
 }
 
-export interface Portfolio extends SymbolInfo {
-    position: number;
-    averageCost: number;
-    marketPrice: number;
-    [x: string]: any;
-}
+export interface MarketData {
+  symbol: string;
 
-export interface OpenOrder extends SymbolInfo {
-    // status,
-    filled: number;
-    remaining: number;
-    avgFillPrice: number;
-    lastFillPrice?: number;
-    [x: string]: any;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+
+  date: Date;
+
+  //   TODO others provided by market providers
+  [x: string]: any;
 }

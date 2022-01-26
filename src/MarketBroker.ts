@@ -42,7 +42,7 @@ export abstract class MarketBroker {
   public abstract quote<T>(args: SymbolInfo & T): Promise<MarketData & T>;
 
   public abstract subMarketData<T>(args: SubMarkets<T>): Promise<void>;
-  public abstract subPriceUpdate<T>(args: SubMarkets<T>): Promise<void>;
+  public abstract subPriceUpdate<T>(args: SymbolInfo & T): Promise<void>;
 }
 
 export default MarketBroker;

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { GetSymbolData, MarketData, SymbolInfo } from "./interfaces";
 import { MPconfig, MarketProvider } from "./MarketProvider";
 
@@ -29,6 +30,10 @@ export class DemoProvider extends MarketProvider {
     // do some market then emit to self
     // this.emit();
   }
+
+  public getSteams(): SymbolInfo[] {
+    return this.streams;
+  }
 }
 
 /**
@@ -43,15 +48,35 @@ export class DemoBroker implements MarketBroker {
   }
 
   public setProvider(provider: MarketProvider): void {
+    /**
+     * Look for previous streams from old provider and re-add them to new provider
+     */
+
+    let existingStreams = [];
+    if (this.provider) {
+      // existing provider, migrate streams to new one
+      existingStreams = this.provider.getSteams();
+    }
     this.provider = provider;
-    this.initProvider(provider);
+    this.initProvider(provider, existingStreams); // add existing streams from old if exits
   }
 
-  public initProvider(provider: MarketProvider): void {
+  public initProvider(provider: MarketProvider, streams?: SymbolInfo[]): void {
     // Market data subscribers
     provider.on("", () => {
       this.when.emit("someEvent", {});
     });
+
+    // TODO ... add others events
+
+    // e.t.c ....
+
+    // subscribe if steams has length
+    if (streams.length > 0) {
+      streams.forEach((stream) => {
+        this.subPriceUpdate(stream);
+      });
+    }
   }
 
   public search<T>(args: SymbolInfo & T): Promise<SymbolInfo & T[]> {
@@ -66,19 +91,21 @@ export class DemoBroker implements MarketBroker {
     throw new Error("Method not implemented.");
     // provider.getMarketData VOID
   }
-  public subPriceUpdate<T>(args: GetSymbolData & T): Promise<void> {
+  public subPriceUpdate<T>(args: SymbolInfo & T): Promise<void> {
     throw new Error("Method not implemented.");
     // provider.addToStreams VOID
   }
 }
 
 /**
- * Somewhere withing my nodejs app, using my imaginary provider and it's broker.
+ * Somewhere withing my nodejs app, using my imaginary provider(s) and it's broker.
+ * @goal only one broker, @multiple providers incase one dies out.
+ * @goal @demoApp doesn't need to change it's listeners.
  */
 const demoApp = async () => {
   // Create a first provider
   const dProvider = new DemoProvider();
-  // TODO end using provider from here
+  // TODO end using the first provider from here
 
   // create it's broker abstraction
   const dBroker = new DemoBroker(dProvider);
@@ -88,10 +115,11 @@ const demoApp = async () => {
   dBroker.when.on("someEvent", () => {});
 
   // TODO case 2
-  // one way to sub data
+  // to sub to data
   await dBroker.subMarketData({ symbol: "APPL", startDate: new Date() });
 
-  // meaning this will not kill case 1 and 2, but just change the provider, incase provide dies or is not responsive
+  // meaning this will not kill case 1 and 2,
+  // but just change the provider, incase provide dies or is not responsive
   const dProvider2 = new DemoProvider();
   dBroker.setProvider(dProvider2); // this resets implementations in broker, but broker events in 1 and 2 are still there
 };

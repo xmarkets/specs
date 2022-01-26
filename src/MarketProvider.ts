@@ -34,6 +34,7 @@ export abstract class MarketProvider extends Events {
 
   public abstract addToSteams(): Promise<void>;
   public abstract removeFromSteams(): Promise<void>;
+  public abstract getSteams(): SymbolInfo[]; // no need to implement in abstract class
 
   public abstract getMarketData<T>(args: GetSymbolData & T): Promise<void>;
 }

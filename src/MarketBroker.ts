@@ -1,5 +1,6 @@
 import { GetSymbolData, MarketData, SymbolInfo } from "./interfaces";
 
+import Events from "events";
 import { MarketProvider } from "./MarketProvider";
 
 export interface BrokerEvents {
@@ -18,11 +19,24 @@ type SubMarkets<T> = GetSymbolData & T;
  */
 export abstract class MarketBroker {
   provider: MarketProvider;
-  events: Event;
+  when: Events;
 
   constructor(marketProvider: MarketProvider) {
     this.provider = marketProvider;
   }
+
+  /**
+   * Change the provider at some init/later point in the app
+   * This resets almost all things
+   * @param marketProvider
+   */
+  public abstract setProvider(provider: MarketProvider): void;
+
+  /**
+   * initiate provider events
+   * @param marketProvider
+   */
+  public abstract initProvider(provider: MarketProvider): void;
 
   public abstract search<T>(args: SymbolInfo & T): Promise<SymbolInfo & T[]>;
   public abstract quote<T>(args: SymbolInfo & T): Promise<MarketData & T>;

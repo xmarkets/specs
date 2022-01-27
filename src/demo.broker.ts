@@ -102,7 +102,7 @@ export class DemoBroker implements MarketBroker {
  * @goal only one broker, @multiple providers incase one dies out.
  * @goal @demoApp doesn't need to change it's listeners.
  */
-const demoApp = async () => {
+export const demoApp = async () => {
   // Create a first provider
   const dProvider = new DemoProvider();
   // TODO end using the first provider from here
